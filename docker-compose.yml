@@ -1,0 +1,56 @@
+version: "3.7"
+
+services:
+    app-http:
+        image: nginx:latest
+        volumes:
+            - ./:/current
+            - ./_docker/routing/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./_docker/routing/fastcgi_params:/etc/nginx/fastcgi_params:ro
+            - ./_docker/routing/conf.d/:/etc/nginx/conf.d:ro
+        ports:
+            - 6060:80
+        networks:
+          - www
+
+    app-fpm:
+        container_name: test-task-php
+        working_dir: /current
+        build:
+            context: ./_docker
+            dockerfile: php-fpm.docker
+        volumes:
+            - ./:/current
+            - ./_docker/php/php-fpm.conf:/usr/local/etc/php-fpm.conf:ro
+            - ./.env.example:/current/.env #just for demo
+        networks:
+          - www
+
+    mysql:
+        container_name: test-task-db1
+        working_dir: /current
+        image: mysql:8
+        ports:
+            - 33398:3306
+        volumes:
+            - ./:/current
+        environment:
+            MYSQL_USER: test
+            MYSQL_PASSWORD: test
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: test
+        networks:
+          - www
+
+    app-composer:
+        container_name: test-task-composer
+        working_dir: /current
+        image: composer:latest
+        volumes:
+          - ./:/current
+        command: composer install --ignore-platform-reqs
+
+
+networks:
+    www:
+
