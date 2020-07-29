@@ -1,4 +1,4 @@
-###Demo backend
+### Demo backend
 1) Run `docker-compose up --build`, composer will install needed dependencies
 
 2) On first run you'll need to run migrations and seeds:
